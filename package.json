@@ -1,6 +1,6 @@
 {
   "name": "material-ui-snackbar-redux",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Snackbar component using Material-UI v1 with Redux integration",
   "main": "lib/index.js",
   "scripts": {
