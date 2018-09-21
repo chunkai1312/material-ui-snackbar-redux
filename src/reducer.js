@@ -1,18 +1,15 @@
 import { SHOW, DISMISS } from './types'
 
 const initialState = {
-  message: null,
-  open: false,
-  action: null
+  queue: []
 }
 
 export default (state = initialState, { type, payload } = {}) => {
   switch (type) {
     case SHOW:
-      const { message, action, handleAction } = payload
-      return { ...state, open: true, message: message || payload, action, handleAction }
+      return { queue: [ ...state.queue, { id: Date.now(), ...payload } ] }
     case DISMISS:
-      return { ...state, open: false, action: null, handleAction: null }
+      return { queue: state.queue.filter((snackbar) => snackbar.id !== payload.id) }
     default:
       return state
   }

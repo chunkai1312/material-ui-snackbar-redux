@@ -6,6 +6,12 @@ import Button from '@material-ui/core/Button'
 import actions from './actions'
 
 class SnackbarProvider extends PureComponent {
+  state = {
+    open: false,
+    message: null,
+    action: null
+  }
+
   getChildContext () {
     return {
       snackbar: {
@@ -14,36 +20,57 @@ class SnackbarProvider extends PureComponent {
     }
   }
 
-  handleActionClick = () => {
-    this.handleClose()
-    this.props.snackbar.handleAction()
+  componentDidUpdate (prevProps, prevState) {
+    if (this.props.snackbar !== prevProps.snackbar) {
+      if (this.props.snackbar) {
+        if (this.state.open) {
+          this.setState({ open: false })
+        } else {
+          this.processQueue()
+        }
+      }
+    }
   }
 
-  handleClose = () => {
-    this.props.dismiss()
+  handleClose = (event, reason) => {
+    if (reason === 'clickaway') return
+    this.setState({ open: false, handleAction: null })
+  }
+
+  handleExited = () => {
+    this.processQueue()
+  }
+
+  handleActionClick = () => {
+    this.handleClose()
+    this.state.handleAction()
+  }
+
+  processQueue = () => {
+    if (this.props.snackbar) {
+      const { message, action, handleAction } = this.props.snackbar
+      this.setState({ open: true, message, action, handleAction })
+      this.props.dismiss(this.props.snackbar.id)
+    }
   }
 
   render () {
-    const { children, SnackbarProps = {}, snackbar } = this.props
-    const { action, message, open } = snackbar
+    const { children, SnackbarProps = {} } = this.props
+    const { action, message, open } = this.state
 
     return (
       <React.Fragment>
         {children}
-        <Snackbar
-          {...SnackbarProps}
+        <Snackbar {...SnackbarProps}
           open={open}
           message={message || ''}
           action={action && (
-            <Button
-              color='secondary'
-              size='small'
-              onClick={this.handleActionClick}
-            >
+            <Button color="secondary" size="small" onClick={this.handleActionClick}>
               {action}
             </Button>
           )}
           onClose={this.handleClose}
+          onExited={this.handleExited}
         />
       </React.Fragment>
     )
@@ -61,10 +88,10 @@ SnackbarProvider.propTypes = {
 
 export default connect(
   state => ({
-    snackbar: state.snackbar
+    snackbar: state.snackbar.queue[0] || null
   }),
   dispatch => ({
     show: (message, action, handleAction) => dispatch(actions.show({ message, action, handleAction })),
-    dismiss: () => dispatch(actions.dismiss())
+    dismiss: (id) => dispatch(actions.dismiss({ id }))
   })
 )(SnackbarProvider)
