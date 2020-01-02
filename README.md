@@ -1,6 +1,10 @@
 # material-ui-snackbar-redux
 
-> Snackbar component using Material-UI v1 with Redux integration
+> [DEPRECATED] Snackbar component using Material-UI v1 with Redux integration
+
+## Deprecation Notice
+
+This package has been deprecated. Please use [notistack](https://www.npmjs.com/package/notistack) instead.
 
 ## Install
 
